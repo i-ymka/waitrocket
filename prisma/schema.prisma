@@ -1,0 +1,56 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Waitlist {
+  id                String          @id @default(cuid())
+  slug              String          @unique
+  ownerId           String          // Clerk userId of the creator
+  name              String
+  headline          String
+  rewardCopy        String
+  referralWeight    Int             @default(10)
+  brandColor        String          @default("#7c3aed")
+  logoUrl           String?
+  isPoweredByHidden Boolean         @default(false)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  signups           WaitlistSignup[]
+}
+
+model WaitlistSignup {
+  id            String          @id @default(cuid())
+  waitlistId    String
+  email         String
+  name          String?
+  referrerId    String?
+  referralCount Int             @default(0)
+  basePosition  Int
+  createdAt     DateTime        @default(now())
+  waitlist      Waitlist        @relation(fields: [waitlistId], references: [id], onDelete: Cascade)
+  referrer      WaitlistSignup? @relation("ReferralChain", fields: [referrerId], references: [id])
+  referrals     WaitlistSignup[] @relation("ReferralChain")
+
+  @@unique([waitlistId, email])
+  @@index([waitlistId])
+}
+
+model User {
+  id                   String   @id           // Clerk userId
+  email                String   @unique
+  name                 String?
+  plan                 UserPlan @default(FREE)
+  paddleSubscriptionId String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+enum UserPlan {
+  FREE
+  PRO
+}

@@ -1,0 +1,3 @@
+CREATE TYPE "UserPlan" AS ENUM ('FREE', 'PRO');
+ALTER TABLE "User" ADD COLUMN "plan" "UserPlan" NOT NULL DEFAULT 'FREE';
+ALTER TABLE "User" ADD COLUMN "paddleSubscriptionId" TEXT;
